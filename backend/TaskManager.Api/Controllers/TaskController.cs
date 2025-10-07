@@ -15,27 +15,10 @@ public class TasksController : ControllerBase
         _taskService = taskService;
     }
 
-
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<TaskDto>>> GetAllTasks()
-    {
-        var tasks = await _taskService.GetAllTasks();
-        return Ok(tasks);
-    }
-
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<TaskDto>> GetTaskById(int id)
-    {
-        var task = await _taskService.GetTaskById(id);
-        
-        if (task == null)
-            return NotFound($"Task with ID {id} not found");
-        
-        return Ok(task);
-    }
-
-    [HttpPost]
+    /// <summary>
+    /// Create a new task
+    /// </summary>
+    [HttpPost(Name = "CreateTask")]    
     public async Task<ActionResult<TaskDto>> CreateTask(CreateTaskDto createTaskDto)
     {
         try
@@ -48,4 +31,33 @@ public class TasksController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    /// <summary>
+    /// Get a single task by ID
+    /// </summary>
+    [HttpGet("{id}", Name = "GetTaskById")]
+    public async Task<ActionResult<TaskDto>> GetTaskById(int id)
+    {
+        var task = await _taskService.GetTaskById(id);
+        
+        if (task == null)
+            return NotFound($"Task with ID {id} not found");
+        
+        return Ok(task);
+    }
+
+    /// <summary>
+    /// Get all tasks
+    /// </summary>
+    [HttpGet(Name = "GetAllTasks")]
+    public async Task<ActionResult<IEnumerable<TaskDto>>> GetAllTasks()
+    {
+        var tasks = await _taskService.GetAllTasks();
+        return Ok(tasks);
+    }
+
+
+
+
+
 }
