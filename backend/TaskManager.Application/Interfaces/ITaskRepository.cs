@@ -1,5 +1,7 @@
 using TaskManager.Domain.Entities;
 
+namespace TaskManager.Application.Interfaces;
+
 public interface ITaskRepository
 {
     Task<TaskItem?> GetByIdAsync(int id);
