@@ -5,9 +5,7 @@ using TaskManager.Application.Interfaces;
 
 namespace TaskManager.Application.Services;
 
-/// <summary>
-/// Service that handles all task-related business logic
-/// </summary>
+
 public class TaskService : ITaskService
 {
     private readonly ITaskRepository _taskRepository;
@@ -20,68 +18,7 @@ public class TaskService : ITaskService
         _userRepository = userRepository;
     }
 
-    /// <summary>
-    /// Get all tasks from the database
-    /// </summary>
-    public async Task<IEnumerable<TaskDto>> GetAllTasksAsync()
-    {
-        // Get all tasks from repository
-        var tasks = await _taskRepository.GetAllAsync();
-
-        // Convert each TaskItem to TaskDto
-        var taskDtos = new List<TaskDto>();
-        foreach (var task in tasks)
-        {
-            taskDtos.Add(new TaskDto
-            {
-                Id = task.Id,
-                Name = task.Name,
-                Description = task.Description,
-                StartDate = task.StartDate,
-                EndDate = task.EndDate,
-                Status = task.Status.ToString(),
-                AssignedToUserId = task.AssignedToUserId,
-                AssignedToUsername = task.AssignedTo?.Username ?? "Unknown",
-                CreatedDate = task.CreatedDate,
-                UpdatedDate = task.UpdatedDate
-            });
-        }
-
-        return taskDtos;
-    }
-
-    /// <summary>
-    /// Get a single task by its ID
-    /// </summary>
-    public async Task<TaskDto?> GetTaskByIdAsync(int id)
-    {
-        // Get task from repository
-        var task = await _taskRepository.GetByIdAsync(id);
-
-        // If task doesn't exist, return null
-        if (task == null)
-            return null;
-
-        // Convert TaskItem to TaskDto
-        return new TaskDto
-        {
-            Id = task.Id,
-            Name = task.Name,
-            Description = task.Description,
-            StartDate = task.StartDate,
-            EndDate = task.EndDate,
-            Status = task.Status.ToString(),
-            AssignedToUserId = task.AssignedToUserId,
-            AssignedToUsername = task.AssignedTo?.Username ?? "Unknown",
-            CreatedDate = task.CreatedDate,
-            UpdatedDate = task.UpdatedDate
-        };
-    }
-
-    /// <summary>
-    /// Create a new task
-    /// </summary>
-    public async Task<TaskDto> CreateTaskAsync(CreateTaskDto createTaskDto)
+    public async Task<TaskDto> CreateTask(CreateTaskDto createTaskDto)
     {
         // Check if the assigned user exists
         var user = await _userRepository.GetByIdAsync(createTaskDto.AssignedToUserId);
@@ -121,12 +58,6 @@ public class TaskService : ITaskService
         };
     }
 
-    // Placeholder methods from ITaskService - we'll implement these later
-    public void CreateTask(string title, string description)
-    {
-        throw new NotImplementedException("Use CreateTaskAsync instead");
-    }
-
     public void UpdateTask(int taskId, string title, string description)
     {
         throw new NotImplementedException("Will implement later");
@@ -137,15 +68,58 @@ public class TaskService : ITaskService
         throw new NotImplementedException("Will implement later");
     }
 
-    public TaskItem GetTaskById(int taskId)
+    public async Task<TaskDto?> GetTaskById(int id)
     {
-        throw new NotImplementedException("Use GetTaskByIdAsync instead");
+        // Get task from repository
+        var task = await _taskRepository.GetByIdAsync(id);
+
+        // If task doesn't exist, return null
+        if (task == null)
+            return null;
+
+        // Convert TaskItem to TaskDto
+        return new TaskDto
+        {
+            Id = task.Id,
+            Name = task.Name,
+            Description = task.Description,
+            StartDate = task.StartDate,
+            EndDate = task.EndDate,
+            Status = task.Status.ToString(),
+            AssignedToUserId = task.AssignedToUserId,
+            AssignedToUsername = task.AssignedTo?.Username ?? "Unknown",
+            CreatedDate = task.CreatedDate,
+            UpdatedDate = task.UpdatedDate
+        };
     }
 
-    public IEnumerable<TaskItem> GetAllTasks()
+    public async Task<IEnumerable<TaskDto>> GetAllTasks()
     {
-        throw new NotImplementedException("Use GetAllTasksAsync instead");
+        // Get all tasks from repository
+        var tasks = await _taskRepository.GetAllAsync();
+
+        // Convert each TaskItem to TaskDto
+        var taskDtos = new List<TaskDto>();
+        foreach (var task in tasks)
+        {
+            taskDtos.Add(new TaskDto
+            {
+                Id = task.Id,
+                Name = task.Name,
+                Description = task.Description,
+                StartDate = task.StartDate,
+                EndDate = task.EndDate,
+                Status = task.Status.ToString(),
+                AssignedToUserId = task.AssignedToUserId,
+                AssignedToUsername = task.AssignedTo?.Username ?? "Unknown",
+                CreatedDate = task.CreatedDate,
+                UpdatedDate = task.UpdatedDate
+            });
+        }
+
+        return taskDtos;
     }
+
 
     public void AssignTask(int taskId, int userId)
     {

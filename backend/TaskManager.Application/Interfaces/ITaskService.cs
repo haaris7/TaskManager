@@ -1,14 +1,14 @@
-using TaskManager.Domain.Entities;
+using TaskManager.Application.DTOs;
 
 namespace TaskManager.Application.Interfaces;
 
 public interface ITaskService
-    {
-    void CreateTask(string title, string description);
+{
+    Task<TaskDto> CreateTask(CreateTaskDto createTaskDto);
     void UpdateTask(int taskId, string title, string description);
     void DeleteTask(int taskId);
-    TaskItem GetTaskById(int taskId);
-    IEnumerable<TaskItem> GetAllTasks();
+    Task<TaskDto?> GetTaskById(int id);
+    Task<IEnumerable<TaskDto>> GetAllTasks();
     void AssignTask(int taskId, int userId);
     void ChangeTaskStatus(int taskId, string status);
-    }
+}
