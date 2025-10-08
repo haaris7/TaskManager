@@ -58,14 +58,63 @@ public class TaskService : ITaskService
         };
     }
 
-    public void UpdateTask(int taskId, string title, string description)
+      public async Task<TaskDto> UpdateTask(int taskId, UpdateTaskDto updateTaskDto)
     {
-        throw new NotImplementedException("Will implement later");
+        // Get the existing task
+        var task = await _taskRepository.GetByIdAsync(taskId) ?? throw new Exception($"Task with ID {taskId} not found");
+
+        // Check if the assigned user exists
+        var user = await _userRepository.GetByIdAsync(updateTaskDto.AssignedToUserId) ?? throw new Exception($"User with ID {updateTaskDto.AssignedToUserId} not found");
+
+        // Update the task properties
+        task.Name = updateTaskDto.Name;
+        task.Description = updateTaskDto.Description;
+        task.StartDate = updateTaskDto.StartDate;
+        task.EndDate = updateTaskDto.EndDate;
+        task.AssignedToUserId = updateTaskDto.AssignedToUserId;
+        task.UpdatedDate = DateTime.UtcNow;
+
+        // Parse and set status
+        if (Enum.TryParse<TaskItemStatus>(updateTaskDto.Status, out var status))
+        {
+            task.Status = status;
+        }
+        else
+        {
+            throw new Exception($"Invalid status: {updateTaskDto.Status}");
+        }
+
+        // Save changes
+        await _taskRepository.UpdateAsync(task);
+
+        // Return updated task as DTO
+        return new TaskDto
+        {
+            Id = task.Id,
+            Name = task.Name,
+            Description = task.Description,
+            StartDate = task.StartDate,
+            EndDate = task.EndDate,
+            Status = task.Status.ToString(),
+            AssignedToUserId = task.AssignedToUserId,
+            AssignedToUsername = user.Username,
+            CreatedDate = task.CreatedDate,
+            UpdatedDate = task.UpdatedDate
+        };
     }
 
-    public void DeleteTask(int taskId)
+    public async Task<bool> DeleteTask(int taskId)
     {
-        throw new NotImplementedException("Will implement later");
+        // Check if task exists
+        var task = await _taskRepository.GetByIdAsync(taskId);
+        if (task == null)
+        {
+            return false;
+        }
+
+        // Delete the task
+        await _taskRepository.DeleteAsync(taskId);
+        return true;
     }
 
     public async Task<TaskDto?> GetTaskById(int id)
@@ -121,13 +170,81 @@ public class TaskService : ITaskService
     }
 
 
-    public void AssignTask(int taskId, int userId)
+    public async Task<TaskDto?> AssignTask(int taskId, int userId)
     {
-        throw new NotImplementedException("Will implement later");
+        // Get the task
+        var task = await _taskRepository.GetByIdAsync(taskId);
+        if (task == null)
+        {
+            return null;
+        }
+
+        // Check if user exists
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
+        {
+            throw new Exception($"User with ID {userId} not found");
+        }
+
+        // Reassign the task
+        task.AssignedToUserId = userId;
+        task.UpdatedDate = DateTime.UtcNow;
+
+        // Save changes
+        await _taskRepository.UpdateAsync(task);
+
+        // Return updated task
+        return new TaskDto
+        {
+            Id = task.Id,
+            Name = task.Name,
+            Description = task.Description,
+            StartDate = task.StartDate,
+            EndDate = task.EndDate,
+            Status = task.Status.ToString(),
+            AssignedToUserId = task.AssignedToUserId,
+            AssignedToUsername = user.Username,
+            CreatedDate = task.CreatedDate,
+            UpdatedDate = task.UpdatedDate
+        };
     }
 
-    public void ChangeTaskStatus(int taskId, string status)
+    public async Task<TaskDto?> ChangeTaskStatus(int taskId, string status)
     {
-        throw new NotImplementedException("Will implement later");
+        // Get the task
+        var task = await _taskRepository.GetByIdAsync(taskId);
+        if (task == null)
+        {
+            return null;
+        }
+
+        // Parse and validate status
+        if (Enum.TryParse<TaskItemStatus>(status, out var taskStatus))
+        {
+            task.Status = taskStatus;
+            task.UpdatedDate = DateTime.UtcNow;
+
+            // Save changes
+            await _taskRepository.UpdateAsync(task);
+
+            // Return updated task
+            return new TaskDto
+            {
+                Id = task.Id,
+                Name = task.Name,
+                Description = task.Description,
+                StartDate = task.StartDate,
+                EndDate = task.EndDate,
+                Status = task.Status.ToString(),
+                AssignedToUserId = task.AssignedToUserId,
+                AssignedToUsername = task.AssignedTo?.Username ?? "Unknown",
+                CreatedDate = task.CreatedDate,
+                UpdatedDate = task.UpdatedDate
+            };
+        }
+        else
+        {
+            throw new Exception($"Invalid status: {status}. Valid values: NotStarted, InProgress, Completed, OnHold, Cancelled");
+        }
     }
 }
