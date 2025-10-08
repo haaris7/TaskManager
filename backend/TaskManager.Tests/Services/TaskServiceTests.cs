@@ -58,4 +58,29 @@ public class TaskServiceTests
         Assert.Equal("haaris.i", result.AssignedToUsername);
     }
 
+    [Fact]
+    public async Task CreateTask_WhenUserDoesNotExist_ShouldThrowException()
+    {
+        var createTaskDto = new CreateTaskDto
+        {
+            Name = "Test Task",
+            Description = "Test Description",
+            StartDate = DateTime.UtcNow,
+            AssignedToUserId = 999  // this user does not exist
+        };
+
+        // Tell our fake repository to return null (user not found)
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(999))
+            .ReturnsAsync((User?)null);
+
+        // Here we expect an exception to be thrown
+        var exception = await Assert.ThrowsAsync<Exception>(
+            async () => await _taskService.CreateTask(createTaskDto)
+        );
+
+        Assert.Equal("User with ID 999 not found", exception.Message);
+    }
+
+
 }
