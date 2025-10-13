@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using TaskManager.Application.Interfaces;
+using TaskManager.Application.Services;
 using TaskManager.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,8 @@ builder.Services.AddDbContext<TaskDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+
+builder.Services.AddScoped<ITaskService, TaskService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

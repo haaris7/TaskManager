@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Domain.Entities;
 using TaskManager.Infrastructure.Data;
+using TaskManager.Application.Interfaces;
 
 public class UserRepository : IUserRepository
 {
