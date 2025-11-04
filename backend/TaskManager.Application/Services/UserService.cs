@@ -15,6 +15,7 @@ public class UserService : IUserService
 
     public async Task<UserDto> CreateUser(CreateUserDto createUserDto)
     {
+        ValidatePassword(createUserDto.Password);
         var user = new Employee
         {
             Username = createUserDto.Username,
@@ -83,6 +84,15 @@ public class UserService : IUserService
     public async Task<IEnumerable<UserDto>> GetUsersByRole(string role)
     {
         throw new NotImplementedException();
+    }
+
+    private void ValidatePassword(string password)
+    {
+        var errors = PasswordValidator.Validate(password);
+        if (errors.Count != 0)
+        {
+            throw new Exception(string.Join(". ", errors));
+        }
     }
 
     private UserDto MapToDto(User user)
