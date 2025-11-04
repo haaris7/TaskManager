@@ -16,11 +16,14 @@ public class UserService : IUserService
     public async Task<UserDto> CreateUser(CreateUserDto createUserDto)
     {
         ValidatePassword(createUserDto.Password);
+
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password);
+
         var user = new Employee
         {
             Username = createUserDto.Username,
             Email = createUserDto.Email,
-            PasswordHash = createUserDto.Password,
+            PasswordHash = hashedPassword,
             EmployeeId = createUserDto.EmployeeId ?? string.Empty,
             Department = createUserDto.Department ?? string.Empty,
             CreatedDate = DateTime.UtcNow
