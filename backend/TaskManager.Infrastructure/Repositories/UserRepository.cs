@@ -47,21 +47,21 @@ public class UserRepository : IUserRepository
     public async Task<bool> UsernameExistsAsync(string username, int? excludeUserId = null)
     {
         return await _context.Users
-            .AnyAsync(u => u.Username.Equals(username, StringComparison.CurrentCultureIgnoreCase)
+            .AnyAsync(u => u.Username.ToLower() == username.ToLower()
                         && (excludeUserId == null || u.Id != excludeUserId));
     }
 
     public async Task<bool> EmailExistsAsync(string email, int? excludeUserId = null)
     {
         return await _context.Users
-            .AnyAsync(u => u.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase)
+            .AnyAsync(u => u.Email.ToLower() == email.ToLower()
                         && (excludeUserId == null || u.Id != excludeUserId));
     }
 
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await _context.Users
-            .FirstOrDefaultAsync(u => u.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase));
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
     }
 
     public async Task<IEnumerable<User>> GetByRoleAsync(string role)
