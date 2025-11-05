@@ -57,4 +57,31 @@ public class UserRepository : IUserRepository
             .AnyAsync(u => u.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase)
                         && (excludeUserId == null || u.Id != excludeUserId));
     }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase));
+    }
+
+    public async Task<IEnumerable<User>> GetByRoleAsync(string role)
+    {
+        // Map role string to discriminator value
+        var discriminator = role.ToLower() switch
+        {
+            "admin" => "Admin",
+            "client" => "Client",
+            "employee" => "Employee",
+            "projectmanager" => "ProjectManager",
+            _ => null
+        };
+
+        if (discriminator == null)
+            return Enumerable.Empty<User>();
+
+        // Use EF.Property to access the discriminator column
+        return await _context.Users
+            .Where(u => EF.Property<string>(u, "UserType") == discriminator)
+            .ToListAsync();
+    }
 }

@@ -11,5 +11,6 @@ public interface IUserRepository
 
     Task<bool> UsernameExistsAsync(string username, int? excludeUserId = null);
     Task<bool> EmailExistsAsync(string email, int? excludeUserId = null);
-    
+    Task<User?> GetByEmailAsync(string email);
+    Task<IEnumerable<User>> GetByRoleAsync(string role);
 }
