@@ -8,4 +8,8 @@ public interface IUserRepository
     Task AddAsync(User user);
     Task UpdateAsync(User user);
     Task DeleteAsync(int id);
+
+    Task<bool> UsernameExistsAsync(string username, int? excludeUserId = null);
+    Task<bool> EmailExistsAsync(string email, int? excludeUserId = null);
+    
 }

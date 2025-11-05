@@ -43,4 +43,18 @@ public class UserRepository : IUserRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<bool> UsernameExistsAsync(string username, int? excludeUserId = null)
+    {
+        return await _context.Users
+            .AnyAsync(u => u.Username.Equals(username, StringComparison.CurrentCultureIgnoreCase)
+                        && (excludeUserId == null || u.Id != excludeUserId));
+    }
+
+    public async Task<bool> EmailExistsAsync(string email, int? excludeUserId = null)
+    {
+        return await _context.Users
+            .AnyAsync(u => u.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase)
+                        && (excludeUserId == null || u.Id != excludeUserId));
+    }
 }

@@ -15,7 +15,12 @@ public class UserService : IUserService
 
     public async Task<UserDto> CreateUser(CreateUserDto createUserDto)
     {
+        // Validate password strength
         ValidatePassword(createUserDto.Password);
+
+        // Validate that the username and email are unique before updating
+        await ValidateUniqueUsername(createUserDto.Username);
+        await ValidateUniqueEmail(createUserDto.Email);
 
         var hashedPassword = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password);
 
@@ -41,6 +46,10 @@ public class UserService : IUserService
         {
             throw new Exception($"User with ID {userId} not found");
         }
+
+        // Validate that the username and email are unique before updating
+        await ValidateUniqueUsername(updateUserDto.Username, userId);
+        await ValidateUniqueEmail(updateUserDto.Email, userId);
 
         user.Username = updateUserDto.Username;
         user.Email = updateUserDto.Email;
@@ -95,6 +104,22 @@ public class UserService : IUserService
         if (errors.Count != 0)
         {
             throw new Exception(string.Join(". ", errors));
+        }
+    }
+
+    private async Task ValidateUniqueUsername(string username, int? excludeUserId = null)
+    {
+        if (await _userRepository.UsernameExistsAsync(username, excludeUserId))
+        {
+            throw new Exception($"Username '{username}' is already taken");
+        }
+    }
+
+    private async Task ValidateUniqueEmail(string email, int? excludeUserId = null)
+    {
+        if (await _userRepository.EmailExistsAsync(email, excludeUserId))
+        {
+            throw new Exception($"Email '{email}' is already registered");
         }
     }
 
