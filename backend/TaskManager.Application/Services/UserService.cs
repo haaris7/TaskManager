@@ -1,6 +1,7 @@
 using TaskManager.Application.DTOs;
 using TaskManager.Application.Interfaces;
 using TaskManager.Domain.Entities;
+using TaskManager.Application.Factories;
 
 namespace TaskManager.Application.Services;
 
@@ -15,27 +16,20 @@ public class UserService : IUserService
 
     public async Task<UserDto> CreateUser(CreateUserDto createUserDto)
     {
-        // Validate password strength
+        // Validate password
         ValidatePassword(createUserDto.Password);
-
-        // Validate that the username and email are unique before updating
+        
+        // Validate uniqueness
         await ValidateUniqueUsername(createUserDto.Username);
         await ValidateUniqueEmail(createUserDto.Email);
 
+        // Hash password
         var hashedPassword = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password);
-
-        var user = new Employee
-        {
-            Username = createUserDto.Username,
-            Email = createUserDto.Email,
-            PasswordHash = hashedPassword,
-            EmployeeId = createUserDto.EmployeeId ?? string.Empty,
-            Department = createUserDto.Department ?? string.Empty,
-            CreatedDate = DateTime.UtcNow
-        };
+        
+        // Create user using factory
+        var user = UserFactory.CreateUser(createUserDto, hashedPassword);
 
         await _userRepository.AddAsync(user);
-
         return MapToDto(user);
     }
 
