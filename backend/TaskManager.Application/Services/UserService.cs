@@ -84,12 +84,14 @@ public class UserService : IUserService
 
     public async Task<UserDto?> GetUserByEmail(string email)
     {
-        throw new NotImplementedException();
+        var user = await _userRepository.GetByEmailAsync(email);
+        return user == null ? null : MapToDto(user);
     }
 
     public async Task<IEnumerable<UserDto>> GetUsersByRole(string role)
     {
-        throw new NotImplementedException();
+        var users = await _userRepository.GetByRoleAsync(role);
+        return users.Select(MapToDto);
     }
 
     private void ValidatePassword(string password)
