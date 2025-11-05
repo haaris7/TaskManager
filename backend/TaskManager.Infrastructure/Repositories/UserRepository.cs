@@ -43,4 +43,45 @@ public class UserRepository : IUserRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<bool> UsernameExistsAsync(string username, int? excludeUserId = null)
+    {
+        return await _context.Users
+            .AnyAsync(u => u.Username.ToLower() == username.ToLower()
+                        && (excludeUserId == null || u.Id != excludeUserId));
+    }
+
+    public async Task<bool> EmailExistsAsync(string email, int? excludeUserId = null)
+    {
+        return await _context.Users
+            .AnyAsync(u => u.Email.ToLower() == email.ToLower()
+                        && (excludeUserId == null || u.Id != excludeUserId));
+    }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+    }
+
+    public async Task<IEnumerable<User>> GetByRoleAsync(string role)
+    {
+        // Map role string to discriminator value
+        var discriminator = role.ToLower() switch
+        {
+            "admin" => "Admin",
+            "client" => "Client",
+            "employee" => "Employee",
+            "projectmanager" => "ProjectManager",
+            _ => null
+        };
+
+        if (discriminator == null)
+            return Enumerable.Empty<User>();
+
+        // Use EF.Property to access the discriminator column
+        return await _context.Users
+            .Where(u => EF.Property<string>(u, "UserType") == discriminator)
+            .ToListAsync();
+    }
 }
