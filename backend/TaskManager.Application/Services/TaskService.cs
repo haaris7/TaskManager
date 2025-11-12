@@ -2,6 +2,8 @@ using TaskManager.Application.DTOs;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Enums;
 using TaskManager.Application.Interfaces;
+using TaskManager.Application.Exceptions;
+
 
 namespace TaskManager.Application.Services;
 
@@ -24,7 +26,7 @@ public class TaskService : ITaskService
         var user = await _userRepository.GetByIdAsync(createTaskDto.AssignedToUserId);
         if (user == null)
         {
-            throw new Exception($"User with ID {createTaskDto.AssignedToUserId} not found");
+            throw new NotFoundException($"User with ID {createTaskDto.AssignedToUserId} not found");
         }
 
         // Create a new TaskItem entity from the DTO
@@ -61,10 +63,10 @@ public class TaskService : ITaskService
       public async Task<TaskDto> UpdateTask(int taskId, UpdateTaskDto updateTaskDto)
     {
         // Get the existing task
-        var task = await _taskRepository.GetByIdAsync(taskId) ?? throw new Exception($"Task with ID {taskId} not found");
+        var task = await _taskRepository.GetByIdAsync(taskId) ?? throw new NotFoundException($"Task with ID {taskId} not found");
 
         // Check if the assigned user exists
-        var user = await _userRepository.GetByIdAsync(updateTaskDto.AssignedToUserId) ?? throw new Exception($"User with ID {updateTaskDto.AssignedToUserId} not found");
+        var user = await _userRepository.GetByIdAsync(updateTaskDto.AssignedToUserId) ?? throw new NotFoundException($"User with ID {updateTaskDto.AssignedToUserId} not found");
 
         // Update the task properties
         task.Name = updateTaskDto.Name;
@@ -81,7 +83,7 @@ public class TaskService : ITaskService
         }
         else
         {
-            throw new Exception($"Invalid status: {updateTaskDto.Status}");
+            throw new ValidationException($"Invalid status: {updateTaskDto.Status}");
         }
 
         // Save changes
@@ -183,7 +185,7 @@ public class TaskService : ITaskService
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
         {
-            throw new Exception($"User with ID {userId} not found");
+            throw new NotFoundException($"User with ID {userId} not found");
         }
 
         // Reassign the task
@@ -244,7 +246,7 @@ public class TaskService : ITaskService
         }
         else
         {
-            throw new Exception($"Invalid status: {status}. Valid values: NotStarted, InProgress, Completed, OnHold, Cancelled");
+            throw new ValidationException($"Invalid status: {status}. Valid values: NotStarted, InProgress, Completed, OnHold, Cancelled");
         }
     }
 }

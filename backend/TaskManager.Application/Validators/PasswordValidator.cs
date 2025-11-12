@@ -1,3 +1,5 @@
+namespace TaskManager.Application.Validators;
+
 public static class PasswordValidator
 {
     public static List<string> Validate(string password)

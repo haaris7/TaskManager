@@ -4,6 +4,7 @@ using TaskManager.Application.Interfaces;
 using TaskManager.Application.DTOs;
 using TaskManager.Domain.Entities;
 using TaskManager.Domain.Enums;
+using TaskManager.Application.Exceptions;
 
 namespace TaskManager.Tests.Services;
 // these are Unit tests for TaskService, I might add integration tests later
@@ -76,7 +77,7 @@ public class TaskServiceTests
             .ReturnsAsync((User?)null);
 
         // Here we expect an exception to be thrown
-        var exception = await Assert.ThrowsAsync<Exception>(
+        var exception = await Assert.ThrowsAsync<NotFoundException>(
             async () => await _taskService.CreateTask(createTaskDto)
         );
 
@@ -209,7 +210,7 @@ public class TaskServiceTests
             .ReturnsAsync(existingTask);
 
       
-        var exception = await Assert.ThrowsAsync<Exception>(
+        var exception = await Assert.ThrowsAsync<ValidationException>(
             async () => await _taskService.ChangeTaskStatus(1, "InvalidStatus")
         );
 

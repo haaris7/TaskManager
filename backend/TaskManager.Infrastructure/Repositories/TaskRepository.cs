@@ -14,12 +14,16 @@ public class TaskRepository : ITaskRepository
 
     public async Task<TaskItem?> GetByIdAsync(int id)
     {
-        return await _context.Tasks.FindAsync(id);
+            return await _context.Tasks
+        .Include(t => t.AssignedTo)
+        .FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<IEnumerable<TaskItem>> GetAllAsync()
     {
-        return await _context.Tasks.ToListAsync();
+            return await _context.Tasks
+        .Include(t => t.AssignedTo)
+        .ToListAsync();
     }
 
     public async Task AddAsync(TaskItem task)
