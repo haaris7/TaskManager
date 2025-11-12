@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TaskManager.Api.Middleware;
 using TaskManager.Application.Interfaces;
 using TaskManager.Application.Services;
 using TaskManager.Infrastructure.Data;
@@ -24,6 +25,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

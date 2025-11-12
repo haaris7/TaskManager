@@ -2,6 +2,8 @@ using TaskManager.Application.DTOs;
 using TaskManager.Application.Interfaces;
 using TaskManager.Domain.Entities;
 using TaskManager.Application.Factories;
+using TaskManager.Application.Validators;
+using TaskManager.Application.Exceptions;
 
 namespace TaskManager.Application.Services;
 
@@ -38,7 +40,7 @@ public class UserService : IUserService
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
         {
-            throw new Exception($"User with ID {userId} not found");
+            throw new NotFoundException($"User with ID {userId} not found");
         }
 
         // Validate uniqueness (excluding current user)
@@ -126,7 +128,7 @@ public class UserService : IUserService
         var errors = PasswordValidator.Validate(password);
         if (errors.Count != 0)
         {
-            throw new Exception(string.Join(". ", errors));
+            throw new ValidationException(string.Join(". ", errors));
         }
     }
 
@@ -134,7 +136,8 @@ public class UserService : IUserService
     {
         if (await _userRepository.UsernameExistsAsync(username, excludeUserId))
         {
-            throw new Exception($"Username '{username}' is already taken");
+            throw new ValidationException($"Username '{username}' is already taken");
+
         }
     }
 
@@ -142,7 +145,7 @@ public class UserService : IUserService
     {
         if (await _userRepository.EmailExistsAsync(email, excludeUserId))
         {
-            throw new Exception($"Email '{email}' is already registered");
+            throw new ValidationException($"Email '{email}' is already registered");
         }
     }
 
