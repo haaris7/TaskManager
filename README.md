@@ -5,11 +5,11 @@ A full-stack task management web application built with .NET 8 and React.
 > **Portfolio Project** - Built to showcase software development skills and architectural design patterns.
 > 
 ## Table of Contents
-- [Tech Stack](#-tech-stack)
-- [Architecture](#-architecture)
-- [Features](#-features)
-- [Getting Started](#-getting-started)
-- [API Endpoints](#-api-endpoints)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [API Endpoints](#api-endpoints)
 
 ## Tech Stack
 
