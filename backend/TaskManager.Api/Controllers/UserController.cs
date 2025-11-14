@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Application.DTOs;
 using TaskManager.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskManager.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
