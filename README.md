@@ -71,9 +71,10 @@ graph TD
   - [x] Docker containerization
   - [x] GitHub Actions CI/CD
   - [x] Branch protection rules
+  - [x] JWT Authentication & Authorization
 
 ### In Progress
-- [ ] JWT Authentication & Authorization
+
 - [ ] React Frontend
 - [ ] Role-based access control
 
