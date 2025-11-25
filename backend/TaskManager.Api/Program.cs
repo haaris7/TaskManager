@@ -45,10 +45,60 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    // Policy: Only Admins and ProjectManagers can create tasks
+    options.AddPolicy("CanCreateTasks", policy =>
+        policy.RequireRole("Admin", "ProjectManager"));
+    
+    // Policy: Only Admins can delete tasks
+    options.AddPolicy("CanDeleteTasks", policy =>
+        policy.RequireRole("Admin"));
+    
+    // Policy: Admins and ProjectManagers can assign tasks to users
+    options.AddPolicy("CanAssignTasks", policy =>
+        policy.RequireRole("Admin", "ProjectManager"));
+    
+    // Policy: Admins and ProjectManagers can update any task
+    options.AddPolicy("CanUpdateAnyTask", policy =>
+        policy.RequireRole("Admin", "ProjectManager"));
+    
+    // Policy: Only Admins can manage users (create, update, delete)
+    options.AddPolicy("CanManageUsers", policy =>
+        policy.RequireRole("Admin"));
+});
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// SWAGGER setup
+// Configure Swagger to use JWT Authentication
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Enter 'Bearer' followed by a space and then your token"
+    });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 builder.Services.AddCors(options =>
 {
@@ -76,6 +126,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 

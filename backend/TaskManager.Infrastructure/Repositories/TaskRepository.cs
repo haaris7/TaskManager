@@ -14,15 +14,17 @@ public class TaskRepository : ITaskRepository
 
     public async Task<TaskItem?> GetByIdAsync(int id)
     {
-            return await _context.Tasks
-        .Include(t => t.AssignedTo)
-        .FirstOrDefaultAsync(t => t.Id == id);
+        return await _context.Tasks
+            .Include(t => t.AssignedTo)
+            .Include(t => t.CreatedBy)
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<IEnumerable<TaskItem>> GetAllAsync()
     {
             return await _context.Tasks
         .Include(t => t.AssignedTo)
+        .Include(t => t.CreatedBy)
         .ToListAsync();
     }
 
@@ -46,5 +48,31 @@ public class TaskRepository : ITaskRepository
             _context.Tasks.Remove(task);
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task<IEnumerable<TaskItem>> GetTasksForUser(int userId, UserRole role, string? department, string? clientCompany)
+    {
+        IQueryable<TaskItem> query = _context.Tasks
+            .Include(t => t.AssignedTo)
+            .Include(t => t.CreatedBy);
+
+        return role switch
+        {
+            UserRole.Admin => await query.ToListAsync(), // Admins see everything
+            
+            UserRole.ProjectManager => await query
+                .Where(t => t.Department == department)
+                .ToListAsync(), // PMs see their department only
+            
+            UserRole.Employee => await query
+                .Where(t => t.AssignedToUserId == userId)
+                .ToListAsync(), // Employees see only their assigned tasks
+            
+            UserRole.Client => await query
+                .Where(t => t.ClientCompany == clientCompany)
+                .ToListAsync(), // Clients see their company's tasks
+            
+            _ => new List<TaskItem>() // Unknown role = no tasks
+        };
     }
 }

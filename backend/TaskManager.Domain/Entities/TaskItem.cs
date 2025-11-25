@@ -13,6 +13,12 @@ public class TaskItem
     public int AssignedToUserId { get; set; }
     public User AssignedTo { get; set; } = null!;
 
+    public int CreatedByUserId { get; set; }
+    public User CreatedBy { get; set; } = null!;
+    
+    public string Department { get; set; } = string.Empty;
+    public string? ClientCompany { get; set; }
+
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
 }

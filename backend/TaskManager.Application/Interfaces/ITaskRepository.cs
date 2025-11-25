@@ -9,4 +9,5 @@ public interface ITaskRepository
     Task AddAsync(TaskItem task);
     Task UpdateAsync(TaskItem task);
     Task DeleteAsync(int id);
+    Task<IEnumerable<TaskItem>> GetTasksForUser(int userId, UserRole role, string? department, string? clientCompany);
 }
