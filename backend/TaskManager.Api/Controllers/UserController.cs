@@ -17,6 +17,7 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
+    [Authorize(Policy = "CanManageUsers")]
     [HttpPost]
     public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto createUserDto)
     {
@@ -31,6 +32,7 @@ public class UserController : ControllerBase
         }
     }
 
+    [Authorize(Policy = "CanManageUsers")]
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetUserById(int id)
     {
@@ -42,6 +44,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    [Authorize(Policy = "CanManageUsers")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
     {
@@ -49,6 +52,7 @@ public class UserController : ControllerBase
         return Ok(users);
     }
 
+    [Authorize(Policy = "CanManageUsers")]
     [HttpGet("email/{email}")]
     public async Task<ActionResult<UserDto>> GetUserByEmail(string email)
     {
@@ -60,6 +64,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    [Authorize(Policy = "CanManageUsers")]
     [HttpGet("role/{role}")]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUsersByRole(string role)
     {
@@ -67,6 +72,7 @@ public class UserController : ControllerBase
         return Ok(users);
     }
 
+    [Authorize(Policy = "CanManageUsers")]
     [HttpPut("{id}")]
     public async Task<ActionResult<UserDto>> UpdateUser(int id, UpdateUserDto updateUserDto)
     {
@@ -81,6 +87,7 @@ public class UserController : ControllerBase
         }
     }
 
+    [Authorize(Policy = "CanManageUsers")]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteUser(int id)
     {

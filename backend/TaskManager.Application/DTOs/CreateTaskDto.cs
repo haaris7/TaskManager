@@ -21,4 +21,12 @@ public class CreateTaskDto
 
     [Required(ErrorMessage = "User assignment is required")]
     public int AssignedToUserId { get; set; }
+
+
+    [Required(ErrorMessage = "Department is required")]
+    [MaxLength(50, ErrorMessage = "Department cannot exceed 50 characters")]
+    public string Department { get; set; } = string.Empty;
+
+    [MaxLength(100, ErrorMessage = "Client company cannot exceed 100 characters")]
+    public string? ClientCompany { get; set; }
 }

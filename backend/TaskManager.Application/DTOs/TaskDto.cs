@@ -15,4 +15,8 @@ public class TaskDto
     public string AssignedToUsername { get; set; } = string.Empty;
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
+    public int CreatedByUserId { get; set; }
+    public string CreatedByUsername { get; set; } = string.Empty;
+    public string Department { get; set; } = string.Empty;
+    public string? ClientCompany { get; set; }
 }

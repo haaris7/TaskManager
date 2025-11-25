@@ -30,6 +30,15 @@ public class TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>
         builder.Property(t => t.Status)
             .IsRequired()
             .HasConversion<string>(); // Stores as "NotStarted", "InProgress", etc.
+        
+        // NEW: Department property
+        builder.Property(t => t.Department)
+            .IsRequired()
+            .HasMaxLength(50);
+
+        // NEW: Client company (nullable)
+        builder.Property(t => t.ClientCompany)
+            .HasMaxLength(100);
 
         builder.Property(t => t.CreatedDate)
             .IsRequired();
@@ -42,7 +51,13 @@ public class TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>
             .WithMany() // User doesn't have a Tasks navigation property
             .HasForeignKey(t => t.AssignedToUserId)
             .OnDelete(DeleteBehavior.Restrict); // Don't cascade delete
-
+        
+        // NEW: Relationship: Task created by a user
+        builder.HasOne(t => t.CreatedBy)
+            .WithMany()
+            .HasForeignKey(t => t.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
         // Indexes for better performance
         builder.HasIndex(t => t.AssignedToUserId);
         builder.HasIndex(t => t.Status);

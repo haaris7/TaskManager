@@ -20,6 +20,7 @@ public class TaskController : ControllerBase
     /// <summary>
     /// Create a new task
     /// </summary>
+    [Authorize(Policy = "CanCreateTasks")]
     [HttpPost(Name = "CreateTask")]
     public async Task<ActionResult<TaskDto>> CreateTask(CreateTaskDto createTaskDto)
     {
@@ -37,6 +38,7 @@ public class TaskController : ControllerBase
     /// <summary>
     /// Update an existing task by ID
     /// </summary>
+    [Authorize(Policy = "CanUpdateAnyTask")]
     [HttpPut("{taskId}", Name = "UpdateTask")]
     public async Task<ActionResult<TaskDto>> UpdateTask(int taskId, UpdateTaskDto updateTaskDto)
     {
@@ -54,6 +56,7 @@ public class TaskController : ControllerBase
     /// <summary>
     /// Delete a task by ID
     /// </summary>
+    [Authorize(Policy = "CanDeleteTasks")]
     [HttpDelete("{taskId}", Name = "DeleteTask")]
     public async Task<ActionResult> DeleteTask(int taskId)
     {
@@ -98,6 +101,7 @@ public class TaskController : ControllerBase
     /// <summary>
     /// Assign a task to a user
     ///     </summary>
+    [Authorize(Policy = "CanAssignTasks")]
     [HttpPost("{taskId}/assign/{userId}", Name = "AssignTask")]
     public async Task<ActionResult<TaskDto>> AssignTask(int taskId, int userId)
     {
