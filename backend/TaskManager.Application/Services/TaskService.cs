@@ -20,16 +20,21 @@ public class TaskService : ITaskService
         _userRepository = userRepository;
     }
 
-    public async Task<TaskDto> CreateTask(CreateTaskDto createTaskDto)
+    public async Task<TaskDto> CreateTask(CreateTaskDto createTaskDto, int createdByUserId)
     {
-        // Check if the assigned user exists
+        
         var user = await _userRepository.GetByIdAsync(createTaskDto.AssignedToUserId);
         if (user == null)
         {
             throw new NotFoundException($"User with ID {createTaskDto.AssignedToUserId} not found");
         }
 
-        // Create a new TaskItem entity from the DTO
+        var creator = await _userRepository.GetByIdAsync(createdByUserId);
+        if (creator == null)
+        {
+            throw new NotFoundException($"Creator with ID {createdByUserId} not found");
+        }
+
         var taskItem = new TaskItem
         {
             Name = createTaskDto.Name,
@@ -38,13 +43,14 @@ public class TaskService : ITaskService
             EndDate = createTaskDto.EndDate,
             Status = TaskItemStatus.NotStarted,
             AssignedToUserId = createTaskDto.AssignedToUserId,
+            CreatedByUserId = createdByUserId,
+            Department = createTaskDto.Department,
+            ClientCompany = createTaskDto.ClientCompany,
             CreatedDate = DateTime.UtcNow
         };
 
-        // Save to database
         await _taskRepository.AddAsync(taskItem);
 
-        // Return the created task as a DTO
         return new TaskDto
         {
             Id = taskItem.Id,
@@ -55,12 +61,16 @@ public class TaskService : ITaskService
             Status = taskItem.Status.ToString(),
             AssignedToUserId = taskItem.AssignedToUserId,
             AssignedToUsername = user.Username,
+            CreatedByUserId = createdByUserId,
+            CreatedByUsername = creator.Username,
+            Department = taskItem.Department,
+            ClientCompany = taskItem.ClientCompany,
             CreatedDate = taskItem.CreatedDate,
             UpdatedDate = taskItem.UpdatedDate
         };
     }
 
-      public async Task<TaskDto> UpdateTask(int taskId, UpdateTaskDto updateTaskDto)
+    public async Task<TaskDto> UpdateTask(int taskId, UpdateTaskDto updateTaskDto)
     {
         // Get the existing task
         var task = await _taskRepository.GetByIdAsync(taskId) ?? throw new NotFoundException($"Task with ID {taskId} not found");

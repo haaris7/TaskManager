@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using TaskManager.Application.DTOs;
 using TaskManager.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace TaskManager.Api.Controllers;
 
@@ -24,15 +25,14 @@ public class TaskController : ControllerBase
     [HttpPost(Name = "CreateTask")]
     public async Task<ActionResult<TaskDto>> CreateTask(CreateTaskDto createTaskDto)
     {
-        try
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
         {
-            var createdTask = await _taskService.CreateTask(createTaskDto);
-            return CreatedAtAction(nameof(GetTaskById), new { id = createdTask.Id }, createdTask);
+            return Unauthorized("Invalid user token");
         }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+
+        var createdTask = await _taskService.CreateTask(createTaskDto, userId);
+        return CreatedAtAction(nameof(GetTaskById), new { id = createdTask.Id }, createdTask);
     }
 
     /// <summary>
