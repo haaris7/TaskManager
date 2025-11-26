@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Domain.Entities;
+using TaskManager.Domain.Enums;
 using TaskManager.Infrastructure.Data;
 using TaskManager.Application.Interfaces;
+
 
 public class TaskRepository : ITaskRepository
 {
