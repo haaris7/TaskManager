@@ -51,7 +51,7 @@ public class TaskServiceTests
             .ReturnsAsync(testUser);
 
         // here we run create task from service layer
-        var result = await _taskService.CreateTask(createTaskDto);
+        var result = await _taskService.CreateTask(createTaskDto, testUser.Id);
 
         Assert.NotNull(result);
         Assert.Equal("Test Task", result.Name);
@@ -78,7 +78,7 @@ public class TaskServiceTests
 
         // Here we expect an exception to be thrown
         var exception = await Assert.ThrowsAsync<NotFoundException>(
-            async () => await _taskService.CreateTask(createTaskDto)
+            async () => await _taskService.CreateTask(createTaskDto, 999)
         );
 
         Assert.Equal("User with ID 999 not found", exception.Message);
