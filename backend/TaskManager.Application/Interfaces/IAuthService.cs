@@ -1,10 +1,9 @@
 using TaskManager.Application.DTOs;
 
-namespace TaskManager.Application.Interfaces{
+namespace TaskManager.Application.Interfaces;
 
-    public interface IAuthService
-    {
-        Task<AuthResponseDto> Login(LoginDto loginDto);
-        Task<AuthResponseDto> Register(CreateUserDto createUserDto);
-    }
+public interface IAuthService
+{
+    Task<AuthResponseDto> Login(LoginDto loginDto);
+    Task<AuthResponseDto> Register(RegisterDto registerDto);
 }

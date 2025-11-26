@@ -35,11 +35,38 @@ public class AuthService : IAuthService
         return await CreateAuthResponse(user);
     }
 
-    public async Task<AuthResponseDto> Register(CreateUserDto createUserDto)
+    public async Task<AuthResponseDto> Register(RegisterDto registerDto)
     {
+        // Validate role-specific required fields
+        if (registerDto.AccountType == "Client" && string.IsNullOrWhiteSpace(registerDto.Company))
+        {
+            throw new ValidationException("Company is required for Client accounts");
+        }
+
+        if (registerDto.AccountType == "Employee" && string.IsNullOrWhiteSpace(registerDto.Department))
+        {
+            throw new ValidationException("Department is required for Employee accounts");
+        }
+
+        var createUserDto = new CreateUserDto
+        {
+            Username = registerDto.Username,
+            Email = registerDto.Email,
+            Password = registerDto.Password,
+            Role = registerDto.AccountType,
+            // Client fields
+            Company = registerDto.Company,
+            ContactInfo = registerDto.ContactInfo ?? string.Empty,
+            // Employee fields
+            Department = registerDto.Department,
+            EmployeeId = registerDto.AccountType == "Employee" 
+                ? Guid.NewGuid().ToString()[..8] 
+                : null
+        };
+
         var userDto = await _userService.CreateUser(createUserDto);
         var user = await _userRepository.GetByIdAsync(userDto.Id);
-        
+
         return await CreateAuthResponse(user!);
     }
 
