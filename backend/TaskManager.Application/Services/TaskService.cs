@@ -22,7 +22,7 @@ public class TaskService : ITaskService
 
     public async Task<TaskDto> CreateTask(CreateTaskDto createTaskDto, int createdByUserId)
     {
-        
+
         var user = await _userRepository.GetByIdAsync(createTaskDto.AssignedToUserId);
         if (user == null)
         {
@@ -72,21 +72,21 @@ public class TaskService : ITaskService
 
     public async Task<TaskDto> UpdateTask(int taskId, UpdateTaskDto updateTaskDto)
     {
-        // Get the existing task
-        var task = await _taskRepository.GetByIdAsync(taskId) ?? throw new NotFoundException($"Task with ID {taskId} not found");
+        var task = await _taskRepository.GetByIdAsync(taskId) 
+            ?? throw new NotFoundException($"Task with ID {taskId} not found");
 
-        // Check if the assigned user exists
-        var user = await _userRepository.GetByIdAsync(updateTaskDto.AssignedToUserId) ?? throw new NotFoundException($"User with ID {updateTaskDto.AssignedToUserId} not found");
+        var user = await _userRepository.GetByIdAsync(updateTaskDto.AssignedToUserId) 
+            ?? throw new NotFoundException($"User with ID {updateTaskDto.AssignedToUserId} not found");
 
-        // Update the task properties
         task.Name = updateTaskDto.Name;
         task.Description = updateTaskDto.Description;
         task.StartDate = updateTaskDto.StartDate;
         task.EndDate = updateTaskDto.EndDate;
         task.AssignedToUserId = updateTaskDto.AssignedToUserId;
+        task.Department = updateTaskDto.Department;
+        task.ClientCompany = updateTaskDto.ClientCompany;
         task.UpdatedDate = DateTime.UtcNow;
 
-        // Parse and set status
         if (Enum.TryParse<TaskItemStatus>(updateTaskDto.Status, out var status))
         {
             task.Status = status;
@@ -96,23 +96,9 @@ public class TaskService : ITaskService
             throw new ValidationException($"Invalid status: {updateTaskDto.Status}");
         }
 
-        // Save changes
         await _taskRepository.UpdateAsync(task);
 
-        // Return updated task as DTO
-        return new TaskDto
-        {
-            Id = task.Id,
-            Name = task.Name,
-            Description = task.Description,
-            StartDate = task.StartDate,
-            EndDate = task.EndDate,
-            Status = task.Status.ToString(),
-            AssignedToUserId = task.AssignedToUserId,
-            AssignedToUsername = user.Username,
-            CreatedDate = task.CreatedDate,
-            UpdatedDate = task.UpdatedDate
-        };
+        return MapToDto(task);
     }
 
     public async Task<bool> DeleteTask(int taskId)
@@ -131,54 +117,14 @@ public class TaskService : ITaskService
 
     public async Task<TaskDto?> GetTaskById(int id)
     {
-        // Get task from repository
         var task = await _taskRepository.GetByIdAsync(id);
-
-        // If task doesn't exist, return null
-        if (task == null)
-            return null;
-
-        // Convert TaskItem to TaskDto
-        return new TaskDto
-        {
-            Id = task.Id,
-            Name = task.Name,
-            Description = task.Description,
-            StartDate = task.StartDate,
-            EndDate = task.EndDate,
-            Status = task.Status.ToString(),
-            AssignedToUserId = task.AssignedToUserId,
-            AssignedToUsername = task.AssignedTo?.Username ?? "Unknown",
-            CreatedDate = task.CreatedDate,
-            UpdatedDate = task.UpdatedDate
-        };
+        return task == null ? null : MapToDto(task);
     }
 
     public async Task<IEnumerable<TaskDto>> GetAllTasks()
     {
-        // Get all tasks from repository
         var tasks = await _taskRepository.GetAllAsync();
-
-        // Convert each TaskItem to TaskDto
-        var taskDtos = new List<TaskDto>();
-        foreach (var task in tasks)
-        {
-            taskDtos.Add(new TaskDto
-            {
-                Id = task.Id,
-                Name = task.Name,
-                Description = task.Description,
-                StartDate = task.StartDate,
-                EndDate = task.EndDate,
-                Status = task.Status.ToString(),
-                AssignedToUserId = task.AssignedToUserId,
-                AssignedToUsername = task.AssignedTo?.Username ?? "Unknown",
-                CreatedDate = task.CreatedDate,
-                UpdatedDate = task.UpdatedDate
-            });
-        }
-
-        return taskDtos;
+        return tasks.Select(MapToDto);
     }
 
 
@@ -258,5 +204,26 @@ public class TaskService : ITaskService
         {
             throw new ValidationException($"Invalid status: {status}. Valid values: NotStarted, InProgress, Completed, OnHold, Cancelled");
         }
+    }
+
+    private TaskDto MapToDto(TaskItem task)
+    {
+        return new TaskDto
+        {
+            Id = task.Id,
+            Name = task.Name,
+            Description = task.Description,
+            StartDate = task.StartDate,
+            EndDate = task.EndDate,
+            Status = task.Status.ToString(),
+            AssignedToUserId = task.AssignedToUserId,
+            AssignedToUsername = task.AssignedTo?.Username ?? "Unknown",
+            CreatedByUserId = task.CreatedByUserId,
+            CreatedByUsername = task.CreatedBy?.Username ?? "Unknown",
+            Department = task.Department,
+            ClientCompany = task.ClientCompany,
+            CreatedDate = task.CreatedDate,
+            UpdatedDate = task.UpdatedDate
+        };
     }
 }
