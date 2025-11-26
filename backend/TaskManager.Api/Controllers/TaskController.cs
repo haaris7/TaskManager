@@ -124,6 +124,7 @@ public class TaskController : ControllerBase
     ///    </summary>
     /// <param name="taskId">ID of the task to change status</param>
     /// <param name="status">New status value (e.g., "Pending", "
+    [Authorize(Policy = "CanUpdateAnyTask")]
     [HttpPost("{taskId}/status/{status}", Name = "ChangeTaskStatus")]
     public async Task<ActionResult<TaskDto>> ChangeTaskStatus(int taskId, string status)
     {
