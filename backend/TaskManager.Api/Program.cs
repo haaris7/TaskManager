@@ -104,9 +104,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // Vite default port
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(
+            "http://localhost:5173", // Vite default
+            "http://localhost:3000"  // Docker setup
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
 

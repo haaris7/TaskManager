@@ -1,3 +1,5 @@
+using TaskManager.Domain.Enums;
+
 namespace TaskManager.Domain.Entities;
 
 public abstract class User

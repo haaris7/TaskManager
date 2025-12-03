@@ -34,7 +34,8 @@ public class TaskServiceTests
         {
             Id = 1,
             Username = "haaris.i",
-            Email = "haaris@test.com"
+            Email = "haaris@test.com",
+            Department = "Engineering"
         };
 
         var createTaskDto = new CreateTaskDto
@@ -42,22 +43,23 @@ public class TaskServiceTests
             Name = "Test Task",
             Description = "Test Description",
             StartDate = DateTime.UtcNow,
-            AssignedToUserId = 1
+            AssignedToUserId = 1,
+            Department = "Engineering",
+            ClientCompany = "TestCorp"
         };
 
-        // Ask repository to return the mock user when asked for ID 1
         _mockUserRepository
             .Setup(repo => repo.GetByIdAsync(1))
             .ReturnsAsync(testUser);
 
-        // here we run create task from service layer
-        var result = await _taskService.CreateTask(createTaskDto);
+        var result = await _taskService.CreateTask(createTaskDto, testUser.Id);
 
         Assert.NotNull(result);
         Assert.Equal("Test Task", result.Name);
         Assert.Equal("Test Description", result.Description);
         Assert.Equal("NotStarted", result.Status);
         Assert.Equal("haaris.i", result.AssignedToUsername);
+        Assert.Equal("Engineering", result.Department);
     }
 
     [Fact]
@@ -68,7 +70,8 @@ public class TaskServiceTests
             Name = "Test Task",
             Description = "Test Description",
             StartDate = DateTime.UtcNow,
-            AssignedToUserId = 999  // this user does not exist
+            AssignedToUserId = 999, // this user does not exist.
+            Department = "Engineering"
         };
 
         // Tell our fake repository to return null (user not found)
@@ -78,7 +81,7 @@ public class TaskServiceTests
 
         // Here we expect an exception to be thrown
         var exception = await Assert.ThrowsAsync<NotFoundException>(
-            async () => await _taskService.CreateTask(createTaskDto)
+            async () => await _taskService.CreateTask(createTaskDto, 999)
         );
 
         Assert.Equal("User with ID 999 not found", exception.Message);

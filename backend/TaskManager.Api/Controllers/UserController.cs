@@ -21,15 +21,8 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto createUserDto)
     {
-        try
-        {
-            var createdUser = await _userService.CreateUser(createUserDto);
-            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var createdUser = await _userService.CreateUser(createUserDto);
+        return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
     }
 
     [Authorize(Policy = "CanManageUsers")]
@@ -76,15 +69,8 @@ public class UserController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult<UserDto>> UpdateUser(int id, UpdateUserDto updateUserDto)
     {
-        try
-        {
-            var updatedUser = await _userService.UpdateUser(id, updateUserDto);
-            return Ok(updatedUser);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var updatedUser = await _userService.UpdateUser(id, updateUserDto);
+        return Ok(updatedUser);
     }
 
     [Authorize(Policy = "CanManageUsers")]
