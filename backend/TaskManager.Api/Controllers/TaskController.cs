@@ -42,15 +42,9 @@ public class TaskController : ControllerBase
     [HttpPut("{taskId}", Name = "UpdateTask")]
     public async Task<ActionResult<TaskDto>> UpdateTask(int taskId, UpdateTaskDto updateTaskDto)
     {
-        try
-        {
-            var updatedTask = await _taskService.UpdateTask(taskId, updateTaskDto);
-            return Ok(updatedTask);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var updatedTask = await _taskService.UpdateTask(taskId, updateTaskDto);
+        return Ok(updatedTask);
+
     }
 
     /// <summary>
@@ -60,18 +54,11 @@ public class TaskController : ControllerBase
     [HttpDelete("{taskId}", Name = "DeleteTask")]
     public async Task<ActionResult> DeleteTask(int taskId)
     {
-        try
-        {
-            var result = await _taskService.DeleteTask(taskId);
-            if (!result)
-                return NotFound($"Task with ID {taskId} not found");
+        var result = await _taskService.DeleteTask(taskId);
+        if (!result)
+            return NotFound($"Task with ID {taskId} not found");
 
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return NoContent();
     }
 
     /// <summary>
@@ -105,18 +92,11 @@ public class TaskController : ControllerBase
     [HttpPost("{taskId}/assign/{userId}", Name = "AssignTask")]
     public async Task<ActionResult<TaskDto>> AssignTask(int taskId, int userId)
     {
-        try
-        {
-            var updatedTask = await _taskService.AssignTask(taskId, userId);
-            if (updatedTask == null)
-                return NotFound($"Task with ID {taskId} or User with ID {userId} not found");
+        var updatedTask = await _taskService.AssignTask(taskId, userId);
+        if (updatedTask == null)
+            return NotFound($"Task with ID {taskId} or User with ID {userId} not found");
 
-            return Ok(updatedTask);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(updatedTask);
     }
 
     /// <summary>
@@ -128,18 +108,11 @@ public class TaskController : ControllerBase
     [HttpPost("{taskId}/status/{status}", Name = "ChangeTaskStatus")]
     public async Task<ActionResult<TaskDto>> ChangeTaskStatus(int taskId, string status)
     {
-        try
-        {
-            var updatedTask = await _taskService.ChangeTaskStatus(taskId, status);
-            if (updatedTask == null)
-                return NotFound($"Task with ID {taskId} not found or invalid status '{status}'");
+        var updatedTask = await _taskService.ChangeTaskStatus(taskId, status);
+        if (updatedTask == null)
+            return NotFound($"Task with ID {taskId} not found or invalid status '{status}'");
 
-            return Ok(updatedTask);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(updatedTask);
     }
 
 
