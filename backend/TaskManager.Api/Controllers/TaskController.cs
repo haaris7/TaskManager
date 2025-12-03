@@ -44,7 +44,6 @@ public class TaskController : ControllerBase
     {
         var updatedTask = await _taskService.UpdateTask(taskId, updateTaskDto);
         return Ok(updatedTask);
-
     }
 
     /// <summary>
@@ -72,22 +71,37 @@ public class TaskController : ControllerBase
         if (task == null)
             return NotFound($"Task with ID {id} not found");
 
+        // TODO: Add role-based access check here if needed
+        // For now, any authenticated user can view any task by ID
+
         return Ok(task);
     }
 
     /// <summary>
-    /// Get all tasks
+    /// Get tasks filtered by the current user's role:
+    /// - Admin: All tasks
+    /// - ProjectManager: Tasks in their department
+    /// - Employee: Tasks assigned to them
+    /// - Client: Tasks for their company
     /// </summary>
     [HttpGet(Name = "GetAllTasks")]
     public async Task<ActionResult<IEnumerable<TaskDto>>> GetAllTasks()
     {
-        var tasks = await _taskService.GetAllTasks();
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+        if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId) || userRole == null)
+        {
+            return Unauthorized("Invalid user token");
+        }
+
+        var tasks = await _taskService.GetTasksForUser(userId, userRole);
         return Ok(tasks);
     }
 
     /// <summary>
     /// Assign a task to a user
-    ///     </summary>
+    /// </summary>
     [Authorize(Policy = "CanAssignTasks")]
     [HttpPost("{taskId}/assign/{userId}", Name = "AssignTask")]
     public async Task<ActionResult<TaskDto>> AssignTask(int taskId, int userId)
@@ -101,22 +115,36 @@ public class TaskController : ControllerBase
 
     /// <summary>
     /// Change the status of a task
-    ///    </summary>
-    /// <param name="taskId">ID of the task to change status</param>
-    /// <param name="status">New status value (e.g., "Pending", "
-    [Authorize(Policy = "CanUpdateAnyTask")]
+    /// Admin/PM can change any task status (within their scope)
+    /// Employee can only change status of tasks assigned to them
+    /// </summary>
+    [Authorize(Policy = "CanChangeTaskStatus")]
     [HttpPost("{taskId}/status/{status}", Name = "ChangeTaskStatus")]
     public async Task<ActionResult<TaskDto>> ChangeTaskStatus(int taskId, string status)
     {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+        
+        if (userIdClaim == null || !int.TryParse(userIdClaim, out int userId))
+        {
+            return Unauthorized("Invalid user token");
+        }
+
+        // If user is Employee, verify they own the task
+        if (userRole == "Employee")
+        {
+            var task = await _taskService.GetTaskById(taskId);
+            if (task == null)
+                return NotFound($"Task with ID {taskId} not found");
+            
+            if (task.AssignedToUserId != userId)
+                return Forbid("Employees can only change status of their own assigned tasks");
+        }
+
         var updatedTask = await _taskService.ChangeTaskStatus(taskId, status);
         if (updatedTask == null)
             return NotFound($"Task with ID {taskId} not found or invalid status '{status}'");
 
         return Ok(updatedTask);
     }
-
-
-
-
-
 }

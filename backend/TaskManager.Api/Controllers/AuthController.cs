@@ -22,10 +22,13 @@ public class AuthController : ControllerBase
         return Ok(response);
     }
 
-    [HttpPost("register")]
-    public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto registerDto)
-    {
-        var response = await _authService.Register(registerDto);
-        return Ok(response);
-    }
+    // Public registration disabled - users are now created by Admin only
+    // To re-enable, uncomment the endpoint below
+    
+    // [HttpPost("register")]
+    // public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto registerDto)
+    // {
+    //     var response = await _authService.Register(registerDto);
+    //     return Ok(response);
+    // }
 }

@@ -13,7 +13,6 @@ public class TaskService : ITaskService
     private readonly ITaskRepository _taskRepository;
     private readonly IUserRepository _userRepository;
 
-    // Constructor - dependencies are injected here
     public TaskService(ITaskRepository taskRepository, IUserRepository userRepository)
     {
         _taskRepository = taskRepository;
@@ -22,7 +21,6 @@ public class TaskService : ITaskService
 
     public async Task<TaskDto> CreateTask(CreateTaskDto createTaskDto, int createdByUserId)
     {
-
         var user = await _userRepository.GetByIdAsync(createTaskDto.AssignedToUserId);
         if (user == null)
         {
@@ -103,14 +101,12 @@ public class TaskService : ITaskService
 
     public async Task<bool> DeleteTask(int taskId)
     {
-        // Check if task exists
         var task = await _taskRepository.GetByIdAsync(taskId);
         if (task == null)
         {
             return false;
         }
 
-        // Delete the task
         await _taskRepository.DeleteAsync(taskId);
         return true;
     }
@@ -127,31 +123,61 @@ public class TaskService : ITaskService
         return tasks.Select(MapToDto);
     }
 
-
-    public async Task<TaskDto?> AssignTask(int taskId, int userId)
+    public async Task<IEnumerable<TaskDto>> GetTasksForUser(int userId, string role)
     {
-        // Get the task
-        var task = await _taskRepository.GetByIdAsync(taskId);
-        if (task == null)
+        // Parse the role string to enum
+        if (!Enum.TryParse<UserRole>(role, out var userRole))
         {
-            return null;
+            throw new ValidationException($"Invalid role: {role}");
         }
 
-        // Check if user exists
+        // Get user details for department/company filtering
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
         {
             throw new NotFoundException($"User with ID {userId} not found");
         }
 
-        // Reassign the task
+        // Extract department or company based on user type
+        string? department = null;
+        string? clientCompany = null;
+
+        switch (user)
+        {
+            case ProjectManager pm:
+                department = pm.Department;
+                break;
+            case Employee emp:
+                department = emp.Department;
+                break;
+            case Client client:
+                clientCompany = client.Company;
+                break;
+        }
+
+        var tasks = await _taskRepository.GetTasksForUser(userId, userRole, department, clientCompany);
+        return tasks.Select(MapToDto);
+    }
+
+    public async Task<TaskDto?> AssignTask(int taskId, int userId)
+    {
+        var task = await _taskRepository.GetByIdAsync(taskId);
+        if (task == null)
+        {
+            return null;
+        }
+
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
+        {
+            throw new NotFoundException($"User with ID {userId} not found");
+        }
+
         task.AssignedToUserId = userId;
         task.UpdatedDate = DateTime.UtcNow;
 
-        // Save changes
         await _taskRepository.UpdateAsync(task);
 
-        // Return updated task
         return new TaskDto
         {
             Id = task.Id,
@@ -169,23 +195,19 @@ public class TaskService : ITaskService
 
     public async Task<TaskDto?> ChangeTaskStatus(int taskId, string status)
     {
-        // Get the task
         var task = await _taskRepository.GetByIdAsync(taskId);
         if (task == null)
         {
             return null;
         }
 
-        // Parse and validate status
         if (Enum.TryParse<TaskItemStatus>(status, out var taskStatus))
         {
             task.Status = taskStatus;
             task.UpdatedDate = DateTime.UtcNow;
 
-            // Save changes
             await _taskRepository.UpdateAsync(task);
 
-            // Return updated task
             return new TaskDto
             {
                 Id = task.Id,

@@ -25,7 +25,8 @@ public class UserController : ControllerBase
         return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
     }
 
-    [Authorize(Policy = "CanManageUsers")]
+    // Changed from CanManageUsers to CanViewUsers - PMs need this for task assignment
+    [Authorize(Policy = "CanViewUsers")]
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetUserById(int id)
     {
@@ -37,7 +38,8 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [Authorize(Policy = "CanManageUsers")]
+    // Changed from CanManageUsers to CanViewUsers - PMs need this for task assignment dropdowns
+    [Authorize(Policy = "CanViewUsers")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
     {
@@ -45,7 +47,8 @@ public class UserController : ControllerBase
         return Ok(users);
     }
 
-    [Authorize(Policy = "CanManageUsers")]
+    // Changed from CanManageUsers to CanViewUsers
+    [Authorize(Policy = "CanViewUsers")]
     [HttpGet("email/{email}")]
     public async Task<ActionResult<UserDto>> GetUserByEmail(string email)
     {
@@ -57,7 +60,8 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [Authorize(Policy = "CanManageUsers")]
+    // Changed from CanManageUsers to CanViewUsers
+    [Authorize(Policy = "CanViewUsers")]
     [HttpGet("role/{role}")]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUsersByRole(string role)
     {
