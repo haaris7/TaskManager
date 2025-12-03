@@ -106,7 +106,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
             "http://localhost:5173", // Vite default
-            "http://localhost:3000"  // React default
+            "http://localhost:3000"  // Docker setup
         )
         .AllowAnyHeader()
         .AllowAnyMethod();
