@@ -9,6 +9,7 @@ public interface ITaskService
     Task<bool> DeleteTask(int taskId);
     Task<TaskDto?> GetTaskById(int id);
     Task<IEnumerable<TaskDto>> GetAllTasks();
+    Task<IEnumerable<TaskDto>> GetTasksForUser(int userId, string role);
     Task<TaskDto?> AssignTask(int taskId, int userId);
     Task<TaskDto?> ChangeTaskStatus(int taskId, string status);
 }

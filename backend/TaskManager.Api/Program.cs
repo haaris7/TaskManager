@@ -66,6 +66,14 @@ builder.Services.AddAuthorization(options =>
     // Policy: Only Admins can manage users (create, update, delete)
     options.AddPolicy("CanManageUsers", policy =>
         policy.RequireRole("Admin"));
+    
+    // NEW: Policy for viewing users (needed for task assignment dropdowns)
+    options.AddPolicy("CanViewUsers", policy =>
+        policy.RequireRole("Admin", "ProjectManager"));
+    
+    // NEW: Policy for changing task status (includes Employee for self-assigned tasks)
+    options.AddPolicy("CanChangeTaskStatus", policy =>
+        policy.RequireRole("Admin", "ProjectManager", "Employee"));
 });
 
 builder.Services.AddEndpointsApiExplorer();
