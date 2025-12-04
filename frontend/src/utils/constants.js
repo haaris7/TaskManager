@@ -7,25 +7,31 @@ export const ROLES = {
 };
 
 // Task status styling configuration
+// Using 'dot' class for color and shadow
 export const STATUS_CONFIG = {
   NotStarted: {
     label: 'Not Started',
-    color: 'bg-slate-500/20 text-slate-200 border-slate-500/30'
+    color: 'bg-slate-300',
+    shadow: ''
   },
   InProgress: {
     label: 'In Progress',
-    color: 'bg-blue-500/20 text-blue-200 border-blue-500/30'
+    color: 'bg-amber-400',
+    shadow: 'shadow-glow-yellow'
   },
   Completed: {
     label: 'Completed',
-    color: 'bg-emerald-500/20 text-emerald-200 border-emerald-500/30'
+    color: 'bg-emerald-400',
+    shadow: 'shadow-glow-green'
   },
   OnHold: {
     label: 'On Hold',
-    color: 'bg-amber-500/20 text-amber-200 border-amber-500/30'
+    color: 'bg-sky-400',
+    shadow: 'shadow-glow-blue'
   },
   Cancelled: {
     label: 'Cancelled',
-    color: 'bg-rose-500/20 text-rose-200 border-rose-500/30'
+    color: 'bg-rose-500',
+    shadow: 'shadow-glow-red'
   }
 };
